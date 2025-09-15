@@ -151,8 +151,8 @@ func getQuotation(log *slog.Logger) http.HandlerFunc {
 
 		if err != nil {
 			switch {
-			case errors.Is(err, qry.ErrQuotationNotFound):
-				http.Error(w, "quotation not found", http.StatusNotFound)
+			case errors.Is(err, qry.ErrNoQuotationData):
+				http.Error(w, "quotation was not requested yet", http.StatusNotFound)
 
 				return
 			default:

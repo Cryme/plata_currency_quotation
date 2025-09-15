@@ -8,7 +8,7 @@ import (
 	qm "plata_currency_quotation/internal/service/quotation-manager"
 )
 
-var ErrQuotationNotFound = errors.New("quotation not found")
+var ErrNoQuotationData = errors.New("quotation was not requested yet")
 
 type GetQuotation struct {
 	Base  types.Currency
@@ -24,7 +24,7 @@ func (q *GetQuotation) Run(_ context.Context, _ *slog.Logger) (types.QuotationIn
 	quotation, found := qm.Instance.GetQuotation(q.Base, q.Quote)
 
 	if !found {
-		return types.QuotationInfo{}, ErrQuotationNotFound
+		return types.QuotationInfo{}, ErrNoQuotationData
 	}
 
 	return quotation, nil
