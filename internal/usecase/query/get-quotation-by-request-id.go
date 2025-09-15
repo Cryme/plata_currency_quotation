@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	gs "plata_currency_quotation/internal"
 	"plata_currency_quotation/internal/lib/logger/sl"
+	"plata_currency_quotation/internal/persistence"
 
 	"github.com/google/uuid"
 )
@@ -24,7 +24,7 @@ type GetQuotationByRequestIdResponse struct {
 }
 
 func (q *GetQuotationByRequestId) Run(_ context.Context, log *slog.Logger) (GetQuotationByRequestIdResponse, error) {
-	quotationRequest, err := gs.Db.QuotationRequestGetById(q.Id)
+	quotationRequest, err := persistence.Instance.QuotationRequestGetById(q.Id)
 
 	if err != nil {
 		log.Error("failed to get quotation request", sl.Err(err))

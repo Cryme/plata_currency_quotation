@@ -3,7 +3,7 @@ package quotation_manager
 import (
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"
 	"plata_currency_quotation/internal/domain/types"
-	"plata_currency_quotation/internal/persistence"
+	inmemory "plata_currency_quotation/internal/persistence/inmemory"
 	cc "plata_currency_quotation/internal/service/currency-conversion"
 	"reflect"
 	"testing"
@@ -14,7 +14,7 @@ import (
 )
 
 func Test_Runtime(t *testing.T) {
-	db := persistence.NewInMemory()
+	db := inmemory.New()
 
 	createAndAssert := func(base types.Currency, quote types.Currency) *qr.QuotationRequest {
 		request, err := qr.New(base, quote, uuid.New())
@@ -52,7 +52,7 @@ func Test_Runtime(t *testing.T) {
 }
 
 func Test_GetQuotation(t *testing.T) {
-	manager := New(time.Second, persistence.NewInMemory(), cc.NewMock())
+	manager := New(time.Second, inmemory.New(), cc.NewMock())
 	now := time.Now()
 
 	manager.UpdateQuotation(types.USD, types.EUR, "1.5", now)
@@ -72,7 +72,7 @@ func Test_GetQuotation(t *testing.T) {
 }
 
 func Test_UpdateQuotation(t *testing.T) {
-	manager := New(time.Second, persistence.NewInMemory(), cc.NewMock())
+	manager := New(time.Second, inmemory.New(), cc.NewMock())
 	now := time.Now()
 
 	manager.UpdateQuotation(types.USD, types.EUR, "1.5", now)

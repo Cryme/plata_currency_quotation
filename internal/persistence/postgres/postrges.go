@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"fmt"
+	"log"
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"
 	"plata_currency_quotation/internal/lib/config"
+	"plata_currency_quotation/internal/lib/logger/sl"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,9 +23,7 @@ func (d *Db) OnStart() error {
 	return nil
 }
 
-func New() (*Db, error) {
-	const op = "storage.postgres.New"
-
+func New() *Db {
 	var useSsl string
 
 	if config.V.DbUseSsl {
@@ -38,7 +38,7 @@ func New() (*Db, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		log.Fatal("failed to init postgres db", sl.Err(err))
 	}
 
 	var s = Db{
@@ -46,8 +46,8 @@ func New() (*Db, error) {
 	}
 
 	if err := s.OnStart(); err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		log.Fatal("failed postgres OnStart", sl.Err(err))
 	}
 
-	return &s, nil
+	return &s
 }

@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"plata_currency_quotation/internal"
 	"plata_currency_quotation/internal/api"
 	"plata_currency_quotation/internal/lib/config"
 	"plata_currency_quotation/internal/lib/env"
@@ -15,6 +14,7 @@ import (
 	"plata_currency_quotation/internal/lib/metrics"
 	"plata_currency_quotation/internal/lib/validator"
 	"plata_currency_quotation/internal/persistence"
+	"plata_currency_quotation/internal/persistence/postgres"
 	cc "plata_currency_quotation/internal/service/currency-conversion"
 	qm "plata_currency_quotation/internal/service/quotation-manager"
 	"strconv"
@@ -36,7 +36,7 @@ func main() {
 
 	setupServices()
 
-	metrics.Run(config.V.MetricsPort, gs.CurrencyConversionService)
+	metrics.Run(config.V.MetricsPort, cc.Instance)
 
 	router := chi.NewRouter()
 
@@ -58,14 +58,14 @@ func main() {
 }
 
 func setupServices() {
-	gs.CurrencyConversionService = cc.NewFrankfurterApi(config.V.FrankfurterApiUrl)
+	cc.Instance = cc.NewFrankfurterApi(config.V.FrankfurterApiUrl)
 
-	gs.Db = persistence.New()
+	persistence.Instance = postgres.New()
 
 	qm.Instance = qm.New(
 		time.Duration(config.V.QuotationUpdateIntervalMilliseconds)*time.Millisecond,
-		gs.Db,
-		gs.CurrencyConversionService,
+		persistence.Instance,
+		cc.Instance,
 	)
 
 	qm.Instance.Run()

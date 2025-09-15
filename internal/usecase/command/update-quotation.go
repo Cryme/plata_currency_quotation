@@ -3,10 +3,10 @@ package cmd
 import (
 	"context"
 	"log/slog"
-	gs "plata_currency_quotation/internal"
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"
 	"plata_currency_quotation/internal/domain/types"
 	"plata_currency_quotation/internal/lib/logger/sl"
+	"plata_currency_quotation/internal/persistence"
 
 	"github.com/google/uuid"
 )
@@ -30,7 +30,7 @@ func (u UpdateQuotation) Execute(_ context.Context, log *slog.Logger) (Result, e
 		return Result{}, err
 	}
 
-	err = gs.Db.QuotationRequestCreateOrGetByIdempotencyKey(&quotationRequest)
+	err = persistence.Instance.QuotationRequestCreateOrGetByIdempotencyKey(&quotationRequest)
 
 	if err != nil {
 		log.Error("failed to create quotation request in db", sl.Err(err))

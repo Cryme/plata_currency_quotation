@@ -1,4 +1,4 @@
-package in_memory
+package inmemory
 
 import (
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"

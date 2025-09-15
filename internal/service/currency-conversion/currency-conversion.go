@@ -7,6 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var Instance Interface
+
 type CurrencyRate struct {
 	Rate     string
 	Time     time.Time
