@@ -1,0 +1,204 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/quotation": {
+            "post": {
+                "description": "Creates a quotation update request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quotation"
+                ],
+                "summary": "Request quotation update",
+                "parameters": [
+                    {
+                        "description": "Quotation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/quotation.RequestQuotationUpdateBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/quotation.RequestQuotationUpdateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/quotation/current": {
+            "get": {
+                "description": "Retrieves current quotation by base and quote currencies",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quotation"
+                ],
+                "summary": "Get current quotation by currencies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base Currency",
+                        "name": "base",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Quote Currency",
+                        "name": "quote",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/quotation.GetQuotationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/quotation/{id}": {
+            "get": {
+                "description": "Retrieves a quotation by request ID. If request is not proceeded yet, returns status `NotReady`. If request is completed, returns status `Ready` and fields `rate` and `updatedAt`.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quotation"
+                ],
+                "summary": "Get quotation by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Quotation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/quotation.GetQuotationByRequestIdResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "quotation.GetQuotationByRequestIdResponse": {
+            "description": "fields `price` and `timestamp` are only presented when status is `Ready`",
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "rate": {
+                    "type": "string",
+                    "format": "decimal",
+                    "example": "123.45"
+                },
+                "status": {
+                    "$ref": "#/definitions/quotation.RequestStatus"
+                },
+                "updatedAt": {
+                    "description": "Unix timestamp in milliseconds",
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1694613600
+                }
+            }
+        },
+        "quotation.GetQuotationResponse": {
+            "type": "object",
+            "properties": {
+                "rate": {
+                    "type": "string",
+                    "format": "decimal",
+                    "example": "123.45"
+                },
+                "updatedAt": {
+                    "description": "Unix timestamp in milliseconds",
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1694613600
+                }
+            }
+        },
+        "quotation.RequestQuotationUpdateBody": {
+            "type": "object",
+            "required": [
+                "baseCurrency",
+                "idempotencyKey",
+                "quoteCurrency"
+            ],
+            "properties": {
+                "baseCurrency": {
+                    "$ref": "#/definitions/types.Currency"
+                },
+                "idempotencyKey": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "quoteCurrency": {
+                    "$ref": "#/definitions/types.Currency"
+                }
+            }
+        },
+        "quotation.RequestQuotationUpdateResponse": {
+            "type": "object",
+            "required": [
+                "requestId"
+            ],
+            "properties": {
+                "requestId": {
+                    "type": "string",
+                    "format": "uuid"
+                }
+            }
+        },
+        "quotation.RequestStatus": {
+            "type": "string",
+            "enum": [
+                "Ready",
+                "NotReady"
+            ],
+            "x-enum-varnames": [
+                "Ready",
+                "NotReady"
+            ]
+        },
+        "types.Currency": {
+            "type": "string",
+            "enum": [
+                "USD",
+                "EUR",
+                "MXN"
+            ],
+            "x-enum-varnames": [
+                "USD",
+                "EUR",
+                "MXN"
+            ]
+        }
+    }
+}

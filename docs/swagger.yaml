@@ -1,0 +1,142 @@
+definitions:
+  quotation.GetQuotationByRequestIdResponse:
+    description: fields `price` and `timestamp` are only presented when status is
+      `Ready`
+    properties:
+      rate:
+        example: "123.45"
+        format: decimal
+        type: string
+      status:
+        $ref: '#/definitions/quotation.RequestStatus'
+      updatedAt:
+        description: Unix timestamp in milliseconds
+        example: 1694613600
+        format: int64
+        type: integer
+    required:
+    - status
+    type: object
+  quotation.GetQuotationResponse:
+    properties:
+      rate:
+        example: "123.45"
+        format: decimal
+        type: string
+      updatedAt:
+        description: Unix timestamp in milliseconds
+        example: 1694613600
+        format: int64
+        type: integer
+    type: object
+  quotation.RequestQuotationUpdateBody:
+    properties:
+      baseCurrency:
+        $ref: '#/definitions/types.Currency'
+      idempotencyKey:
+        format: uuid
+        type: string
+      quoteCurrency:
+        $ref: '#/definitions/types.Currency'
+    required:
+    - baseCurrency
+    - idempotencyKey
+    - quoteCurrency
+    type: object
+  quotation.RequestQuotationUpdateResponse:
+    properties:
+      requestId:
+        format: uuid
+        type: string
+    required:
+    - requestId
+    type: object
+  quotation.RequestStatus:
+    enum:
+    - Ready
+    - NotReady
+    type: string
+    x-enum-varnames:
+    - Ready
+    - NotReady
+  types.Currency:
+    enum:
+    - USD
+    - EUR
+    - MXN
+    type: string
+    x-enum-varnames:
+    - USD
+    - EUR
+    - MXN
+info:
+  contact: {}
+paths:
+  /api/v1/quotation:
+    post:
+      consumes:
+      - application/json
+      description: Creates a quotation update request
+      parameters:
+      - description: Quotation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/quotation.RequestQuotationUpdateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/quotation.RequestQuotationUpdateResponse'
+      summary: Request quotation update
+      tags:
+      - Quotation
+  /api/v1/quotation/{id}:
+    get:
+      description: Retrieves a quotation by request ID. If request is not proceeded
+        yet, returns status `NotReady`. If request is completed, returns status `Ready`
+        and fields `rate` and `updatedAt`.
+      parameters:
+      - description: Quotation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/quotation.GetQuotationByRequestIdResponse'
+      summary: Get quotation by ID
+      tags:
+      - Quotation
+  /api/v1/quotation/current:
+    get:
+      description: Retrieves current quotation by base and quote currencies
+      parameters:
+      - description: Base Currency
+        in: query
+        name: base
+        required: true
+        type: string
+      - description: Quote Currency
+        in: query
+        name: quote
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/quotation.GetQuotationResponse'
+      summary: Get current quotation by currencies
+      tags:
+      - Quotation
+swagger: "2.0"
