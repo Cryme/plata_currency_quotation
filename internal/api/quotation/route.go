@@ -8,6 +8,7 @@ import (
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"
 	"plata_currency_quotation/internal/domain/types"
 	"plata_currency_quotation/internal/lib/http-server/response"
+	"plata_currency_quotation/internal/lib/logger/sl"
 	"plata_currency_quotation/internal/lib/validator"
 	"plata_currency_quotation/internal/usecase/command"
 	qry "plata_currency_quotation/internal/usecase/query"
@@ -35,6 +36,8 @@ func RegisterRoutes(router chi.Router, log *slog.Logger) {
 func requestQuotationUpdate(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var request RequestQuotationUpdateBody
+
+		log = log.With(sl.TraceId(r.Context()))
 
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -82,6 +85,8 @@ func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 
+		log = log.With(sl.TraceId(r.Context()))
+
 		if err != nil {
 			http.Error(w, "invalid id format", http.StatusBadRequest)
 
@@ -122,6 +127,8 @@ func getQuotation(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		base := types.Currency(r.URL.Query().Get("base"))
 		quote := types.Currency(r.URL.Query().Get("quote"))
+
+		log = log.With(sl.TraceId(r.Context()))
 
 		if !base.IsValid() {
 			http.Error(w, "invalid base currency", http.StatusBadRequest)

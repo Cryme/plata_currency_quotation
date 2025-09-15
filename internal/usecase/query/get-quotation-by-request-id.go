@@ -23,11 +23,11 @@ type GetQuotationByRequestIdResponse struct {
 	UpdatedAt int64
 }
 
-func (q *GetQuotationByRequestId) Run(ctx context.Context, log *slog.Logger) (GetQuotationByRequestIdResponse, error) {
+func (q *GetQuotationByRequestId) Run(_ context.Context, log *slog.Logger) (GetQuotationByRequestIdResponse, error) {
 	quotationRequest, err := gs.Db.QuotationRequestGetById(q.Id)
 
 	if err != nil {
-		log.Error("failed to get quotation request", sl.Err(err), sl.TraceId(ctx))
+		log.Error("failed to get quotation request", sl.Err(err))
 
 		return GetQuotationByRequestIdResponse{}, err
 	}

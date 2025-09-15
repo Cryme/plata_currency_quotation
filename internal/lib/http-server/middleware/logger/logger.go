@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"plata_currency_quotation/internal/api"
-	"plata_currency_quotation/internal/lib/http-server/middleware/traceparent"
+	"plata_currency_quotation/internal/lib/http-server/middleware/trace-id"
 	"strings"
 	"time"
 
@@ -31,7 +31,7 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				slog.String("path", r.URL.Path),
 				slog.String("remote_addr", r.RemoteAddr),
 				slog.String("user_agent", r.UserAgent()),
-				slog.String("trace_id", traceparent.GetTraceID(r.Context())),
+				slog.String("trace_id", trace_id.GetTraceID(r.Context())),
 			)
 
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)

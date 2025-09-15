@@ -10,7 +10,7 @@ import (
 	"plata_currency_quotation/internal/lib/env"
 	"plata_currency_quotation/internal/lib/http-server/middleware/logger"
 	metricsMiddleware "plata_currency_quotation/internal/lib/http-server/middleware/metrics"
-	"plata_currency_quotation/internal/lib/http-server/middleware/traceparent"
+	"plata_currency_quotation/internal/lib/http-server/middleware/trace-id"
 	"plata_currency_quotation/internal/lib/logger/sl"
 	"plata_currency_quotation/internal/lib/metrics"
 	"plata_currency_quotation/internal/lib/validator"
@@ -40,7 +40,7 @@ func main() {
 
 	router := chi.NewRouter()
 
-	router.Use(traceparent.New())
+	router.Use(trace_id.New())
 	router.Use(metricsMiddleware.New())
 	router.Use(logger.New(sl.Log))
 	router.Use(middleware.Recoverer)

@@ -21,11 +21,11 @@ type Result struct {
 	Id uuid.UUID
 }
 
-func (u UpdateQuotation) Execute(ctx context.Context, log *slog.Logger) (Result, error) {
+func (u UpdateQuotation) Execute(_ context.Context, log *slog.Logger) (Result, error) {
 	quotationRequest, err := qr.New(u.BaseCurrency, u.QuoteCurrency, u.IdempotencyKey)
 
 	if err != nil {
-		log.Error("failed to create quotation request", sl.Err(err), sl.TraceId(ctx))
+		log.Error("failed to create quotation request", sl.Err(err))
 
 		return Result{}, err
 	}
@@ -33,7 +33,7 @@ func (u UpdateQuotation) Execute(ctx context.Context, log *slog.Logger) (Result,
 	err = gs.Db.QuotationRequestCreateOrGetByIdempotencyKey(&quotationRequest)
 
 	if err != nil {
-		log.Error("failed to create quotation request in db", sl.Err(err), sl.TraceId(ctx))
+		log.Error("failed to create quotation request in db", sl.Err(err))
 
 		return Result{}, err
 	}
