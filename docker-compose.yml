@@ -1,0 +1,37 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    environment:
+      DB_HOST: db
+      DB_NAME: plata_db
+      DB_PASSWORD: password
+      DB_PORT: 5432
+      DB_SSL_MODE: disable
+      DB_USER: init_user
+      ENV: local
+      FRANKFURTER_API_URL: https://api.frankfurter.dev
+      INCOMING_REQUEST_TIMEOUT: 60s
+      METRICS_PORT: 1409
+      OUTGOING_REQUEST_TIMEOUT: 10s
+      QUOTATION_UPDATE_INTERVAL_MILLISECONDS: 1000
+      SERVER_IP: 0.0.0.0
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    container_name: myapp-db
+    environment:
+      POSTGRES_DB: plata_db
+      POSTGRES_USER: init_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5430:5432"
+    restart: unless-stopped

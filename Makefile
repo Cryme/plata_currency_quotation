@@ -11,8 +11,11 @@ codegen:
 lint:
 	golangci-lint run
 
-run:
+run-dev:
 	go run cmd/plata_currency_quotation/main.go
+
+build:
+	CGO_ENABLED=0 GOOS=linux go build -o server cmd/plata_currency_quotation/main.go
 
 initial-setup:
 	go mod download
