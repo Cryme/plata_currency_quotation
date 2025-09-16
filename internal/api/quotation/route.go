@@ -27,7 +27,7 @@ func RegisterRoutes(router chi.Router, log *slog.Logger) {
 }
 
 // @Summary Get list of supported currencies
-// @Description Returns list of supported currency codes [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+// @Description Returns list of supported currency codes in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format
 // @Tags Currency
 // @Produce json
 // @Success 200 {object} GetCurrencyListResponse

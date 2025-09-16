@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/currency/list": {
             "get": {
-                "description": "Returns list of supported currency codes [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)",
+                "description": "Returns list of supported currency codes in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format",
                 "produces": [
                     "application/json"
                 ],
