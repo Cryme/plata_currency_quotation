@@ -3,6 +3,6 @@ package types
 import "time"
 
 type QuotationInfo struct {
-	Price     string
+	Rate      string
 	UpdatedAt time.Time
 }

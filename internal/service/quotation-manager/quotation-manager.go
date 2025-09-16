@@ -57,12 +57,12 @@ func (q *QuotationManager) GetQuotation(base types.Currency, quote types.Currenc
 	return info, exists
 }
 
-func (q *QuotationManager) UpdateQuotation(base types.Currency, quote types.Currency, price string, updatedAt time.Time) {
+func (q *QuotationManager) UpdateQuotation(base types.Currency, quote types.Currency, rate string, updatedAt time.Time) {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 
 	q.quotations[asKey(base, quote)] = types.QuotationInfo{
-		Price:     price,
+		Rate:      rate,
 		UpdatedAt: updatedAt,
 	}
 }

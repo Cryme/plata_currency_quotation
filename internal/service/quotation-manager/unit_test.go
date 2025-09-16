@@ -31,11 +31,11 @@ func Test_Runtime(t *testing.T) {
 	request3 := createAndAssert(types.MXN, types.EUR)
 	request4 := createAndAssert(types.EUR, types.MXN)
 
-	manager := New(time.Second, db, cc.NewMock())
+	manager := New(time.Duration(50)*time.Millisecond, db, cc.NewMock())
 
 	manager.Run()
 
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Duration(200) * time.Millisecond)
 
 	var assertUpdated = func(request *qr.QuotationRequest) {
 		requestUpdated, err := db.QuotationRequestGetById(request1.Id)
@@ -62,7 +62,7 @@ func Test_UpdateQuotation(t *testing.T) {
 	quotation := manager.quotations[asKey(types.USD, types.EUR)]
 
 	assert.NotNil(t, quotation)
-	assert.Equal(t, "1.5", quotation.Price)
+	assert.Equal(t, "1.5", quotation.Rate)
 	assert.Equal(t, now, quotation.UpdatedAt)
 
 	now = time.Now()
@@ -71,7 +71,7 @@ func Test_UpdateQuotation(t *testing.T) {
 	quotation = manager.quotations[asKey(types.USD, types.EUR)]
 
 	assert.NotNil(t, quotation)
-	assert.Equal(t, "2.5", quotation.Price)
+	assert.Equal(t, "2.5", quotation.Rate)
 	assert.Equal(t, now, quotation.UpdatedAt)
 }
 
@@ -86,8 +86,8 @@ func Test_GetQuotation(t *testing.T) {
 		t.Error("Expected quotation to exist")
 	}
 
-	if info.Price != "1.5" {
-		t.Errorf("Expected price 1.5, got %s", info.Price)
+	if info.Rate != "1.5" {
+		t.Errorf("Expected price 1.5, got %s", info.Rate)
 	}
 
 	if !info.UpdatedAt.Equal(now) {

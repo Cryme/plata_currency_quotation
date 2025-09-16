@@ -187,6 +187,6 @@ func getQuotation(log *slog.Logger) http.HandlerFunc {
 			return
 		}
 
-		response.Ok(w, log, GetQuotationResponse{Rate: quotation.Price, UpdatedAt: quotation.UpdatedAt.UnixMilli()})
+		response.Ok(w, log, GetQuotationResponse{Rate: quotation.Rate, UpdatedAt: quotation.UpdatedAt.UnixMilli()})
 	}
 }
