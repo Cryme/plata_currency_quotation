@@ -11,8 +11,12 @@ codegen:
 lint:
 	golangci-lint run
 
-run-dev:
+run:
 	go run cmd/plata_currency_quotation/main.go
+
+initial-setup:
+	go mod download
+	$(MAKE) install-tools
 
 test:
 	go test -race -v ./...

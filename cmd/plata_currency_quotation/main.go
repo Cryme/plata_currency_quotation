@@ -45,7 +45,7 @@ func main() {
 	router.Use(logger.New(sl.Log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
-	router.Use(middleware.Timeout(config.V.ServerIdleTimeout))
+	router.Use(middleware.Timeout(config.V.IncomingRequestTimeout))
 
 	api.RegisterRoutes(router, sl.Log)
 

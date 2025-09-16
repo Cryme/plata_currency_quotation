@@ -22,10 +22,10 @@ type Config struct {
 	DbPort     uint16 `env:"DB_PORT" env-required:"true"`
 	DbUseSsl   bool   `env:"DB_USE_SSL" env-required:"true"`
 
-	ServerIp          string        `env:"SERVER_IP" env-required:"true"`
-	ServerPort        uint16        `env:"SERVER_PORT" env-required:"true"`
-	ServerTimeout     time.Duration `env:"SERVER_TIMEOUT" env-required:"true"`
-	ServerIdleTimeout time.Duration `env:"SERVER_IDLE_TIMEOUT" env-required:"true"`
+	ServerIp               string        `env:"SERVER_IP" env-required:"true"`
+	ServerPort             uint16        `env:"SERVER_PORT" env-required:"true"`
+	OutgoingRequestTimeout time.Duration `env:"OUTGOING_REQUEST_TIMEOUT" env-required:"true"`
+	IncomingRequestTimeout time.Duration `env:"INCOMING_REQUEST_TIMEOUT" env-required:"true"`
 
 	SwaggerUser     string `env:"SWAGGER_USER"`
 	SwaggerPassword string `env:"SWAGGER_PASSWORD"`
@@ -57,23 +57,4 @@ func FromEnv() *Config {
 	}
 
 	return &cfg
-}
-
-func Default() *Config {
-	return &Config{
-		Env:                                 env.Local,
-		QuotationUpdateIntervalMilliseconds: 1000,
-		DbHost:                              "",
-		DbUser:                              "",
-		DbPassword:                          "",
-		DbName:                              "",
-		DbPort:                              0,
-		DbUseSsl:                            false,
-		ServerIp:                            "localhost",
-		ServerPort:                          8080,
-		ServerTimeout:                       time.Second * 10,
-		ServerIdleTimeout:                   time.Second * 60,
-		MetricsPort:                         9090,
-		FrankfurterApiUrl:                   "",
-	}
 }

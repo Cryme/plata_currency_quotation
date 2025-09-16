@@ -7,9 +7,11 @@ import (
 	"net/http"
 )
 
+type CtxKey string
+
 const (
-	CtxTraceId    string = "traceId"
-	headerTraceId string = "trace-id"
+	CtxTraceId    CtxKey = "traceId"
+	headerTraceId CtxKey = "trace-id"
 )
 
 func GetTraceID(ctx context.Context) string {
@@ -23,12 +25,12 @@ func GetTraceID(ctx context.Context) string {
 func New() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			traceId := r.Header.Get(headerTraceId)
+			traceId := r.Header.Get(string(headerTraceId))
 
 			if traceId == "" {
 				traceId = randomHex(16)
 
-				w.Header().Set(headerTraceId, traceId)
+				w.Header().Set(string(headerTraceId), traceId)
 			}
 
 			ctx := context.WithValue(r.Context(), CtxTraceId, traceId)

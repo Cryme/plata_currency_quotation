@@ -3,7 +3,7 @@ package quotation_manager
 import (
 	qr "plata_currency_quotation/internal/domain/enity/quotation-request"
 	"plata_currency_quotation/internal/domain/types"
-	inmemory "plata_currency_quotation/internal/persistence/inmemory"
+	"plata_currency_quotation/internal/persistence/inmemory"
 	cc "plata_currency_quotation/internal/service/currency-conversion"
 	"reflect"
 	"testing"
@@ -37,7 +37,7 @@ func Test_Runtime(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	var assertUpdated = func(t *testing.T, request *qr.QuotationRequest) {
+	var assertUpdated = func(request *qr.QuotationRequest) {
 		requestUpdated, err := db.QuotationRequestGetById(request1.Id)
 
 		assert.NoError(t, err)
@@ -45,10 +45,34 @@ func Test_Runtime(t *testing.T) {
 		assert.NotNil(t, requestUpdated.CompletedAt)
 	}
 
-	assertUpdated(t, request1)
-	assertUpdated(t, request2)
-	assertUpdated(t, request3)
-	assertUpdated(t, request4)
+	assertUpdated(request1)
+	assertUpdated(request2)
+	assertUpdated(request3)
+	assertUpdated(request4)
+}
+
+func Test_UpdateQuotation(t *testing.T) {
+	manager := New(time.Second, inmemory.New(), cc.NewMock())
+	now := time.Now()
+
+	manager.UpdateQuotation(types.USD, types.EUR, "1.5", now)
+
+	assert.Len(t, manager.quotations, 1)
+
+	quotation := manager.quotations[asKey(types.USD, types.EUR)]
+
+	assert.NotNil(t, quotation)
+	assert.Equal(t, "1.5", quotation.Price)
+	assert.Equal(t, now, quotation.UpdatedAt)
+
+	now = time.Now()
+	manager.UpdateQuotation(types.USD, types.EUR, "2.5", now)
+
+	quotation = manager.quotations[asKey(types.USD, types.EUR)]
+
+	assert.NotNil(t, quotation)
+	assert.Equal(t, "2.5", quotation.Price)
+	assert.Equal(t, now, quotation.UpdatedAt)
 }
 
 func Test_GetQuotation(t *testing.T) {
@@ -69,21 +93,6 @@ func Test_GetQuotation(t *testing.T) {
 	if !info.UpdatedAt.Equal(now) {
 		t.Errorf("Expected updatedAt %v, got %v", now, info.UpdatedAt)
 	}
-}
-
-func Test_UpdateQuotation(t *testing.T) {
-	manager := New(time.Second, inmemory.New(), cc.NewMock())
-	now := time.Now()
-
-	manager.UpdateQuotation(types.USD, types.EUR, "1.5", now)
-
-	assert.Len(t, manager.quotations, 1)
-
-	quotation := manager.quotations[asKey(types.USD, types.EUR)]
-
-	assert.NotNil(t, quotation)
-	assert.Equal(t, "1.5", quotation.Price)
-	assert.Equal(t, now, quotation.UpdatedAt)
 }
 
 func Test_GroupCurrencyPairs(t *testing.T) {

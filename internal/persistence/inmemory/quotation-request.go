@@ -71,7 +71,6 @@ outer:
 		if req.CompletedAt == nil {
 			key := [2]types.Currency{req.BaseCurrency, req.QuoteCurrency}
 
-			// ensure uniqueness by scanning result slice
 			for _, existing := range result {
 				if existing == key {
 					continue outer
