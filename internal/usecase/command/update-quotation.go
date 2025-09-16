@@ -7,6 +7,7 @@ import (
 	"plata_currency_quotation/internal/domain/types"
 	"plata_currency_quotation/internal/lib/logger/sl"
 	"plata_currency_quotation/internal/persistence"
+	qm "plata_currency_quotation/internal/service/quotation-manager"
 
 	"github.com/google/uuid"
 )
@@ -35,6 +36,8 @@ func (u UpdateQuotation) Execute(_ context.Context, log *slog.Logger) (Result, e
 
 		return Result{}, err
 	}
+
+	qm.Instance.SetRunRequired()
 
 	return Result{
 		Id: quotationRequest.Id,

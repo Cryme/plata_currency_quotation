@@ -8,6 +8,7 @@ import (
 	"plata_currency_quotation/internal/persistence"
 	cc "plata_currency_quotation/internal/service/currency-conversion"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type QuotationManager struct {
 	db              persistence.Interface
 	currencyConvert cc.Interface
 	logger          *slog.Logger
+	runRequired     atomic.Bool
 }
 
 func New(runInterval time.Duration, db persistence.Interface, currencyConvert cc.Interface) *QuotationManager {
@@ -34,9 +36,16 @@ func New(runInterval time.Duration, db persistence.Interface, currencyConvert cc
 		db:              db,
 		currencyConvert: currencyConvert,
 		logger:          logger,
+		runRequired:     atomic.Bool{},
 	}
 
+	manager.runRequired.Store(true)
+
 	return &manager
+}
+
+func (q *QuotationManager) SetRunRequired() {
+	q.runRequired.Store(true)
 }
 
 func (q *QuotationManager) GetQuotation(base types.Currency, quote types.Currency) (types.QuotationInfo, bool) {
@@ -63,7 +72,11 @@ func (q *QuotationManager) Run() {
 		for {
 			var startedAt = time.Now()
 
-			q.runRequestsHandler()
+			var swapped = q.runRequired.CompareAndSwap(true, false)
+
+			if swapped {
+				q.runRequestsHandler()
+			}
 
 			executionTime := time.Since(startedAt)
 			sleepDuration := q.runInterval - executionTime
