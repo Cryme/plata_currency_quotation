@@ -24,9 +24,11 @@
 Выполнить `make run-dev`
 
 #### Для запуска в докере
-`docker compose up server`
+Необходимы `docker`, `docker-compose`
 
-Также поднимется контейнер с пг. !Volume не прокидывается! 
+Таргет `server` в [docker-compose](docker-compose.yml)
+
+Также поднимется контейнер с пг _(Volume не прокидывается)_ 
 
 ---
 
