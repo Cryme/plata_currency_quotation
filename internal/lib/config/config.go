@@ -31,6 +31,7 @@ type Config struct {
 	SwaggerPassword string `env:"SWAGGER_PASSWORD"`
 
 	MetricsPort uint16 `env:"METRICS_PORT" env-required:"true"`
+	MetricsIp   string `env:"METRICS_IP" env-required:"true"`
 
 	FrankfurterApiUrl string `env:"FRANKFURTER_API_URL" env-required:"true"`
 }

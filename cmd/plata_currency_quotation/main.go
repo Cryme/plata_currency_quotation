@@ -36,7 +36,7 @@ func main() {
 
 	setupServices()
 
-	metrics.Run(config.Instance.MetricsPort, cc.Instance)
+	metrics.Run(config.Instance.MetricsIp, config.Instance.MetricsPort, cc.Instance)
 
 	router := chi.NewRouter()
 

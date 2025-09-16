@@ -14,6 +14,7 @@ services:
       ENV: local
       FRANKFURTER_API_URL: https://api.frankfurter.dev
       INCOMING_REQUEST_TIMEOUT: 60s
+      METRICS_IP: 0.0.0.0
       METRICS_PORT: 1409
       OUTGOING_REQUEST_TIMEOUT: 10s
       QUOTATION_UPDATE_INTERVAL_MILLISECONDS: 1000
@@ -21,6 +22,7 @@ services:
       SERVER_PORT: 8080
     ports:
       - "8080:8080"
+      - "1409:1409"
     depends_on:
       - db
     restart: unless-stopped

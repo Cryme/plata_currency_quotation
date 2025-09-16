@@ -35,7 +35,7 @@ var (
 	)
 )
 
-func Run(port uint16, services ...SetupMetricsInterface) {
+func Run(ip string, port uint16, services ...SetupMetricsInterface) {
 	var addr string
 	reg := prometheus.NewRegistry()
 
@@ -58,7 +58,7 @@ func Run(port uint16, services ...SetupMetricsInterface) {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 
-	addr = "localhost:" + strconv.Itoa(int(port))
+	addr = ip + ":" + strconv.Itoa(int(port))
 
 	go func() {
 		log.Info("metrics are available at endpoint " + addr + "/metrics")
