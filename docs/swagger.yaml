@@ -1,4 +1,12 @@
 definitions:
+  quotation.GetCurrencyListResponse:
+    properties:
+      currencies:
+        items:
+          format: uuid
+          type: string
+        type: array
+    type: object
   quotation.GetQuotationByRequestIdResponse:
     description: fields `price` and `timestamp` are only presented when status is
       `Ready`
@@ -59,6 +67,11 @@ definitions:
     x-enum-varnames:
     - Ready
     - NotReady
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
   types.Currency:
     enum:
     - USD
@@ -72,52 +85,27 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/quotation:
-    post:
-      consumes:
-      - application/json
-      description: Creates a quotation update request
-      parameters:
-      - description: Quotation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/quotation.RequestQuotationUpdateBody'
+  /api/v1/currency/list:
+    get:
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/quotation.RequestQuotationUpdateResponse'
-      summary: Request quotation update
-      tags:
-      - Quotation
-  /api/v1/quotation/{id}:
-    get:
-      description: Retrieves a quotation by request ID. If request is not proceeded
-        yet, returns status `NotReady`. If request is completed, returns status `Ready`
-        and fields `rate` and `updatedAt`.
-      parameters:
-      - description: Quotation ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
+            $ref: '#/definitions/quotation.GetCurrencyListResponse'
+        "500":
+          description: Internal server error
           schema:
-            $ref: '#/definitions/quotation.GetQuotationByRequestIdResponse'
-      summary: Get quotation by ID
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get list of supported currencies
       tags:
-      - Quotation
-  /api/v1/quotation/current:
+      - Currency
+  /api/v1/quotation/last-requested:
     get:
-      description: Retrieves current quotation by base and quote currencies
+      description: Retrieves last requested quotation by base and quote currencies.
+        Returns `404 Quotation not found` if quotation wasn't requested at least once,
+        use `[post] /api/v1/update-request` in this case
       parameters:
       - description: Base Currency
         in: query
@@ -136,7 +124,82 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/quotation.GetQuotationResponse'
-      summary: Get current quotation by currencies
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Quotation not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get last requested quotation by currencies
+      tags:
+      - Quotation
+  /api/v1/quotation/update-request:
+    post:
+      consumes:
+      - application/json
+      description: Creates a quotation update request. Returns request Id.
+      parameters:
+      - description: Quotation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/quotation.RequestQuotationUpdateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/quotation.RequestQuotationUpdateResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Request quotation update
+      tags:
+      - Quotation
+  /api/v1/quotation/update-request/{id}:
+    get:
+      description: Retrieves a quotation by request Id. If request is not proceeded
+        yet, returns status `NotReady`. If request is completed, returns status `Ready`
+        and fields `rate` and `updatedAt`.
+      parameters:
+      - description: Quotation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/quotation.GetQuotationByRequestIdResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: No request with such id
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get quotation by request Id
       tags:
       - Quotation
 swagger: "2.0"

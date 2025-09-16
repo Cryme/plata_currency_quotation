@@ -43,7 +43,7 @@ func (q *QuotationManager) GetQuotation(base types.Currency, quote types.Currenc
 	q.mutex.RLock()
 	defer q.mutex.RUnlock()
 
-	info, exists := q.quotations[string(base+"/"+quote)]
+	info, exists := q.quotations[asKey(base, quote)]
 
 	return info, exists
 }

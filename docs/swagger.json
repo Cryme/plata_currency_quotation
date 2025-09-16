@@ -4,9 +4,88 @@
         "contact": {}
     },
     "paths": {
-        "/api/v1/quotation": {
+        "/api/v1/currency/list": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Currency"
+                ],
+                "summary": "Get list of supported currencies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/quotation.GetCurrencyListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/quotation/last-requested": {
+            "get": {
+                "description": "Retrieves last requested quotation by base and quote currencies. Returns `404 Quotation not found` if quotation wasn't requested at least once, use `[post] /api/v1/update-request` in this case",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quotation"
+                ],
+                "summary": "Get last requested quotation by currencies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base Currency",
+                        "name": "base",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Quote Currency",
+                        "name": "quote",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/quotation.GetQuotationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Quotation not found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/quotation/update-request": {
             "post": {
-                "description": "Creates a quotation update request",
+                "description": "Creates a quotation update request. Returns request Id.",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,56 +113,32 @@
                         "schema": {
                             "$ref": "#/definitions/quotation.RequestQuotationUpdateResponse"
                         }
-                    }
-                }
-            }
-        },
-        "/api/v1/quotation/current": {
-            "get": {
-                "description": "Retrieves current quotation by base and quote currencies",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Quotation"
-                ],
-                "summary": "Get current quotation by currencies",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Base Currency",
-                        "name": "base",
-                        "in": "query",
-                        "required": true
                     },
-                    {
-                        "type": "string",
-                        "description": "Quote Currency",
-                        "name": "quote",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                    "400": {
+                        "description": "Validation error",
                         "schema": {
-                            "$ref": "#/definitions/quotation.GetQuotationResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/api/v1/quotation/{id}": {
+        "/api/v1/quotation/update-request/{id}": {
             "get": {
-                "description": "Retrieves a quotation by request ID. If request is not proceeded yet, returns status `NotReady`. If request is completed, returns status `Ready` and fields `rate` and `updatedAt`.",
+                "description": "Retrieves a quotation by request Id. If request is not proceeded yet, returns status `NotReady`. If request is completed, returns status `Ready` and fields `rate` and `updatedAt`.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Quotation"
                 ],
-                "summary": "Get quotation by ID",
+                "summary": "Get quotation by request Id",
                 "parameters": [
                     {
                         "type": "string",
@@ -99,12 +154,42 @@
                         "schema": {
                             "$ref": "#/definitions/quotation.GetQuotationByRequestIdResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "No request with such id",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "quotation.GetCurrencyListResponse": {
+            "type": "object",
+            "properties": {
+                "currencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            }
+        },
         "quotation.GetQuotationByRequestIdResponse": {
             "description": "fields `price` and `timestamp` are only presented when status is `Ready`",
             "type": "object",
@@ -186,6 +271,14 @@
                 "Ready",
                 "NotReady"
             ]
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
         },
         "types.Currency": {
             "type": "string",

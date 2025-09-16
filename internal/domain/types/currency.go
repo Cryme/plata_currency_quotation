@@ -10,6 +10,10 @@ const (
 	MXN Currency = "MXN"
 )
 
+func AllCurrencies() []Currency {
+	return []Currency{USD, EUR, MXN}
+}
+
 func (c Currency) IsValid() bool {
 	switch c {
 	case USD, EUR, MXN:

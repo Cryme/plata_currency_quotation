@@ -19,20 +19,37 @@ import (
 
 func RegisterRoutes(router chi.Router, log *slog.Logger) {
 	router.Route("/v1", func(router chi.Router) {
-		router.Post("/quotation", requestQuotationUpdate(log))
-		router.Get("/quotation/{id}", getQuotationByRequestId(log))
-		router.Get("/quotation/current", getQuotation(log))
+		router.Post("/quotation/update-request", requestQuotationUpdate(log))
+		router.Get("/quotation/update-request/{id}", getQuotationByRequestId(log))
+		router.Get("/quotation/last-requested", getQuotation(log))
+		router.Get("/currency/list", getCurrencyList(log))
 	})
 }
 
+// @Summary Get list of supported currencies
+// @Tags Currency
+// @Produce json
+// @Success 200 {object} GetCurrencyListResponse
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/currency/list [get]
+func getCurrencyList(log *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log = log.With(sl.TraceId(r.Context()))
+
+		response.Ok(w, log, GetCurrencyListResponse{Currencies: types.AllCurrencies()})
+	}
+}
+
 // @Summary Request quotation update
-// @Description Creates a quotation update request
+// @Description Creates a quotation update request. Returns request Id.
 // @Tags Quotation
 // @Accept json
 // @Produce json
 // @Param request body RequestQuotationUpdateBody true "Quotation request"
 // @Success 200 {object} RequestQuotationUpdateResponse
-// @Router /api/v1/quotation [post]
+// @Failure 400 {object} response.ErrorResponse "Validation error"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/quotation/update-request [post]
 func requestQuotationUpdate(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var request RequestQuotationUpdateBody
@@ -40,13 +57,13 @@ func requestQuotationUpdate(log *slog.Logger) http.HandlerFunc {
 		log = log.With(sl.TraceId(r.Context()))
 
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			response.Error(w, http.StatusBadRequest, err.Error(), log)
 
 			return
 		}
 
 		if err := validator.Struct(request); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			response.Error(w, http.StatusBadRequest, err.Error(), log)
 
 			return
 		}
@@ -62,9 +79,9 @@ func requestQuotationUpdate(log *slog.Logger) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, qr.ErrSameCurrency):
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				response.Error(w, http.StatusBadRequest, "Currencies can't be same", log)
 			default:
-				http.Error(w, "something went wrong", http.StatusInternalServerError)
+				response.Error(w, http.StatusInternalServerError, "Something went wrong", log)
 			}
 
 			return
@@ -74,13 +91,16 @@ func requestQuotationUpdate(log *slog.Logger) http.HandlerFunc {
 	}
 }
 
-// @Summary Get quotation by ID
-// @Description Retrieves a quotation by request ID. If request is not proceeded yet, returns status `NotReady`. If request is completed, returns status `Ready` and fields `rate` and `updatedAt`.
+// @Summary Get quotation by request Id
+// @Description Retrieves a quotation by request Id. If request is not proceeded yet, returns status `NotReady`. If request is completed, returns status `Ready` and fields `rate` and `updatedAt`.
 // @Tags Quotation
 // @Produce json
 // @Param id path string true "Quotation ID"
 // @Success 200 {object} GetQuotationByRequestIdResponse
-// @Router /api/v1/quotation/{id} [get]
+// @Failure 400 {object} response.ErrorResponse "Validation error"
+// @Failure 404 {object} response.ErrorResponse "No request with such id"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/quotation/update-request/{id} [get]
 func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -88,7 +108,7 @@ func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 		log = log.With(sl.TraceId(r.Context()))
 
 		if err != nil {
-			http.Error(w, "invalid id format", http.StatusBadRequest)
+			response.Error(w, http.StatusBadRequest, "Invalid id format. Should be uuid", log)
 
 			return
 		}
@@ -102,12 +122,13 @@ func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, qry.ErrNoRequestWithSuchId):
-				http.Error(w, "no request with such id", http.StatusNotFound)
+				response.Error(w, http.StatusNotFound, "No request with such id", log)
 			case errors.Is(err, qry.ErrRequestNotReady):
 				response.Ok(w, log, GetQuotationByRequestIdResponseNotReady{Status: NotReady})
 			default:
-				http.Error(w, "something went wrong", http.StatusInternalServerError)
+				response.Error(w, http.StatusInternalServerError, "Something went wrong", log)
 			}
+
 			return
 		}
 
@@ -115,14 +136,17 @@ func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 	}
 }
 
-// @Summary Get current quotation by currencies
-// @Description Retrieves current quotation by base and quote currencies
+// @Summary Get last requested quotation by currencies
+// @Description Retrieves last requested quotation by base and quote currencies. Returns `404 Quotation not found` if quotation wasn't requested at least once, use `[post] /api/v1/update-request` in this case
 // @Tags Quotation
 // @Produce json
 // @Param base query string true "Base Currency"
 // @Param quote query string true "Quote Currency"
 // @Success 200 {object} GetQuotationResponse
-// @Router /api/v1/quotation/current [get]
+// @Failure 400 {object} response.ErrorResponse "Validation error"
+// @Failure 404 {object} response.ErrorResponse "Quotation not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /api/v1/quotation/last-requested [get]
 func getQuotation(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		base := types.Currency(r.URL.Query().Get("base"))
@@ -131,13 +155,13 @@ func getQuotation(log *slog.Logger) http.HandlerFunc {
 		log = log.With(sl.TraceId(r.Context()))
 
 		if !base.IsValid() {
-			http.Error(w, "invalid base currency", http.StatusBadRequest)
+			response.Error(w, http.StatusBadRequest, "Invalid base currency", log)
 
 			return
 		}
 
 		if !quote.IsValid() {
-			http.Error(w, "invalid quote currency", http.StatusBadRequest)
+			response.Error(w, http.StatusBadRequest, "Invalid quote currency", log)
 
 			return
 		}
@@ -151,15 +175,15 @@ func getQuotation(log *slog.Logger) http.HandlerFunc {
 
 		if err != nil {
 			switch {
+			case errors.Is(err, qr.ErrSameCurrency):
+				response.Error(w, http.StatusBadRequest, "Currencies can't be same", log)
 			case errors.Is(err, qry.ErrNoQuotationData):
-				http.Error(w, "quotation was not requested yet", http.StatusNotFound)
-
-				return
+				response.Error(w, http.StatusNotFound, "Quotation was not requested yet", log)
 			default:
-				http.Error(w, "something went wrong", http.StatusInternalServerError)
-
-				return
+				response.Error(w, http.StatusInternalServerError, "Something went wrong", log)
 			}
+
+			return
 		}
 
 		response.Ok(w, log, GetQuotationResponse{Rate: quotation.Price, UpdatedAt: quotation.UpdatedAt.UnixMilli()})

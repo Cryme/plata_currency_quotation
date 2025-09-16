@@ -16,6 +16,10 @@ type RequestQuotationUpdateResponse struct {
 	RequestId uuid.UUID `json:"requestId" swaggertype:"string" format:"uuid" binding:"required"`
 }
 
+type GetCurrencyListResponse struct {
+	Currencies []types.Currency `json:"currencies" swaggertype:"array,string" format:"uuid"`
+}
+
 type RequestStatus string
 
 const (

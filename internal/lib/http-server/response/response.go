@@ -19,7 +19,21 @@ func Ok(w http.ResponseWriter, log *slog.Logger, body any) {
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Error("failed to send body", sl.Err(err))
+		log.Error("failed to send response", sl.Err(err))
 	}
 
+}
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
+func Error(w http.ResponseWriter, code int, msg string, log *slog.Logger) {
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(code)
+
+	if err := json.NewEncoder(w).Encode(ErrorResponse{Message: msg}); err != nil {
+		log.Error("failed to send response", sl.Err(err))
+	}
 }
