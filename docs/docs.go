@@ -17,6 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/currency/list": {
             "get": {
+                "description": "Returns list of supported currency codes [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)",
                 "produces": [
                     "application/json"
                 ],
@@ -42,7 +43,7 @@ const docTemplate = `{
         },
         "/api/v1/quotation/last-requested": {
             "get": {
-                "description": "Retrieves last requested quotation by base and quote currencies. Returns ` + "`" + `404 Quotation not found` + "`" + ` if quotation wasn't requested at least once, use ` + "`" + `[post] /api/v1/update-request` + "`" + ` in this case",
+                "description": "Retrieves last requested quotation by base and quote currencies. Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code. List of supported currencies - ` + "`" + `GET /api/v1/currency/list` + "`" + `. Returns ` + "`" + `404 Quotation not found` + "`" + ` if quotation wasn't requested at least once, use ` + "`" + `POST /api/v1/update-request` + "`" + ` in this case",
                 "produces": [
                     "application/json"
                 ],
@@ -96,7 +97,7 @@ const docTemplate = `{
         },
         "/api/v1/quotation/update-request": {
             "post": {
-                "description": "Creates a quotation update request. Returns request Id.",
+                "description": "Creates a quotation update request. Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code. List of supported currencies - ` + "`" + `GET /api/v1/currency/list` + "`" + `. Returns request Id.",
                 "consumes": [
                     "application/json"
                 ],
@@ -191,12 +192,14 @@ const docTemplate = `{
     "definitions": {
         "quotation.GetCurrencyListResponse": {
             "type": "object",
+            "required": [
+                "currencies"
+            ],
             "properties": {
                 "currencies": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "format": "uuid"
+                        "type": "string"
                     }
                 }
             }

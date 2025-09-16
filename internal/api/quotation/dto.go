@@ -17,7 +17,7 @@ type RequestQuotationUpdateResponse struct {
 }
 
 type GetCurrencyListResponse struct {
-	Currencies []types.Currency `json:"currencies" swaggertype:"array,string" format:"uuid"`
+	Currencies []types.Currency `json:"currencies" swaggertype:"array,string" binding:"required"`
 }
 
 type RequestStatus string

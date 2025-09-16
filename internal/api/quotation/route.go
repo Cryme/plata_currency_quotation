@@ -27,6 +27,7 @@ func RegisterRoutes(router chi.Router, log *slog.Logger) {
 }
 
 // @Summary Get list of supported currencies
+// @Description Returns list of supported currency codes [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
 // @Tags Currency
 // @Produce json
 // @Success 200 {object} GetCurrencyListResponse
@@ -41,7 +42,7 @@ func getCurrencyList(log *slog.Logger) http.HandlerFunc {
 }
 
 // @Summary Request quotation update
-// @Description Creates a quotation update request. Returns request Id.
+// @Description Creates a quotation update request. Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code. List of supported currencies - `GET /api/v1/currency/list`. Returns request Id.
 // @Tags Quotation
 // @Accept json
 // @Produce json
@@ -137,7 +138,7 @@ func getQuotationByRequestId(log *slog.Logger) http.HandlerFunc {
 }
 
 // @Summary Get last requested quotation by currencies
-// @Description Retrieves last requested quotation by base and quote currencies. Returns `404 Quotation not found` if quotation wasn't requested at least once, use `[post] /api/v1/update-request` in this case
+// @Description Retrieves last requested quotation by base and quote currencies. Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code. List of supported currencies - `GET /api/v1/currency/list`. Returns `404 Quotation not found` if quotation wasn't requested at least once, use `POST /api/v1/update-request` in this case
 // @Tags Quotation
 // @Produce json
 // @Param base query string true "Base Currency"

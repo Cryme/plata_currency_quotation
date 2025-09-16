@@ -3,9 +3,10 @@ definitions:
     properties:
       currencies:
         items:
-          format: uuid
           type: string
         type: array
+    required:
+    - currencies
     type: object
   quotation.GetQuotationByRequestIdResponse:
     description: fields `price` and `timestamp` are only presented when status is
@@ -87,6 +88,7 @@ info:
 paths:
   /api/v1/currency/list:
     get:
+      description: Returns list of supported currency codes [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
       produces:
       - application/json
       responses:
@@ -104,8 +106,10 @@ paths:
   /api/v1/quotation/last-requested:
     get:
       description: Retrieves last requested quotation by base and quote currencies.
-        Returns `404 Quotation not found` if quotation wasn't requested at least once,
-        use `[post] /api/v1/update-request` in this case
+        Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code. List
+        of supported currencies - `GET /api/v1/currency/list`. Returns `404 Quotation
+        not found` if quotation wasn't requested at least once, use `POST /api/v1/update-request`
+        in this case
       parameters:
       - description: Base Currency
         in: query
@@ -143,7 +147,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a quotation update request. Returns request Id.
+      description: Creates a quotation update request. Use [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+        currency code. List of supported currencies - `GET /api/v1/currency/list`.
+        Returns request Id.
       parameters:
       - description: Quotation request
         in: body
