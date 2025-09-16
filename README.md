@@ -71,7 +71,7 @@
 
 `lib` - метрики/логер/мидлвары и прочие утилиты
 
-`persistence` - интерфейс бд + реализации (postgres и inmemory для тестов)
+`persistence` - интерфейс бд + реализации (postgres и inmemory для тестов _(не то чтобы она нужна была, накидал что бы чуть побольше с языком поиграться)_)
 
 `service` - внешние интеграции, внутренние сервисы (интерфейс + реализации)
 
@@ -80,8 +80,8 @@
 ---
 
 ### Unit тесты
-Есть для [inmemory](internal/persistence/inmemory)(не то чтобы она нужна была, накидал что бы чуть побольше с языком поиграться) и 
-[quotation-manager](internal/service/quotation-manager)
+Есть для [юзкейсов](internal/usecase/unit_test.go), [inmemory бд](internal/service/quotation-manager/unit_test.go) и 
+[quotation-manager](internal/service/quotation-manager/unit_test.go)
 
 ---
 
