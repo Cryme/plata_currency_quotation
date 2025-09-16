@@ -23,7 +23,7 @@
 
 Выполнить `make run-dev`
 
-#### Для запуска в докере
+### Для запуска в докере
 Необходимы `docker`, `docker-compose`
 
 Таргет `server` в [docker-compose](docker-compose.yml)
