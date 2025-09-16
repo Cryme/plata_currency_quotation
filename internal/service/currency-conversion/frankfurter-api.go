@@ -35,11 +35,11 @@ type FrankfurterApi struct {
 	client *http.Client
 }
 
-func NewFrankfurterApi(apiUrl string) *FrankfurterApi {
+func NewFrankfurterApi(apiUrl string, requestTimeout time.Duration) *FrankfurterApi {
 	return &FrankfurterApi{
 		apiUrl: apiUrl,
 		client: &http.Client{
-			Timeout: 2 * time.Second,
+			Timeout: requestTimeout,
 		},
 	}
 }
@@ -75,6 +75,7 @@ func (m *FrankfurterApi) GetLatestRates(base types.Currency, quotes []types.Curr
 
 	if err != nil {
 		requestsTotal.WithLabelValues("GET", "error", "frankfurter").Inc()
+
 		return nil, fmt.Errorf("failed to fetch rate: %w", err)
 	}
 

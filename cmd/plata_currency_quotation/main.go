@@ -25,18 +25,18 @@ import (
 )
 
 func main() {
-	config.V = config.FromEnv()
+	config.Instance = config.FromEnv()
 
 	validator.RegisterValidators()
 
 	setupLogger()
 
-	sl.Log.Info("starting server", slog.String("env", string(config.V.Env)))
+	sl.Log.Info("starting server", slog.String("env", string(config.Instance.Env)))
 	sl.Log.Debug("debug messages are enabled")
 
 	setupServices()
 
-	metrics.Run(config.V.MetricsPort, cc.Instance)
+	metrics.Run(config.Instance.MetricsPort, cc.Instance)
 
 	router := chi.NewRouter()
 
@@ -45,11 +45,11 @@ func main() {
 	router.Use(logger.New(sl.Log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
-	router.Use(middleware.Timeout(config.V.IncomingRequestTimeout))
+	router.Use(middleware.Timeout(config.Instance.IncomingRequestTimeout))
 
 	api.RegisterRoutes(router, sl.Log)
 
-	address := config.V.ServerIp + ":" + strconv.Itoa(int(config.V.ServerPort))
+	address := config.Instance.ServerIp + ":" + strconv.Itoa(int(config.Instance.ServerPort))
 
 	if err := http.ListenAndServe(address, router); err != nil {
 		sl.Log.Error("failed to start server", sl.Err(err))
@@ -58,12 +58,12 @@ func main() {
 }
 
 func setupServices() {
-	cc.Instance = cc.NewFrankfurterApi(config.V.FrankfurterApiUrl)
+	cc.Instance = cc.NewFrankfurterApi(config.Instance.FrankfurterApiUrl, config.Instance.OutgoingRequestTimeout)
 
 	persistence.Instance = postgres.New()
 
 	qm.Instance = qm.New(
-		time.Duration(config.V.QuotationUpdateIntervalMilliseconds)*time.Millisecond,
+		time.Duration(config.Instance.QuotationUpdateIntervalMilliseconds)*time.Millisecond,
 		persistence.Instance,
 		cc.Instance,
 	)
@@ -72,7 +72,7 @@ func setupServices() {
 }
 
 func setupLogger() {
-	switch config.V.Env {
+	switch config.Instance.Env {
 	case env.Local:
 		sl.Log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case env.Dev:

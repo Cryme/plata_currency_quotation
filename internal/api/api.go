@@ -27,10 +27,10 @@ func RegisterRoutes(router *chi.Mux, log *slog.Logger) {
 		quotation.RegisterRoutes(router, log)
 	})
 
-	if config.V.Env != env.Prod {
+	if config.Instance.Env != env.Prod {
 		handler := httpSwagger.WrapHandler
 
-		if config.V.Env != env.Local {
+		if config.Instance.Env != env.Local {
 			handler = basicAuth(handler)
 		}
 
@@ -42,7 +42,7 @@ func basicAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
 
-		if !ok || user != config.V.SwaggerUser || pass != config.V.SwaggerPassword {
+		if !ok || user != config.Instance.SwaggerUser || pass != config.Instance.SwaggerPassword {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 

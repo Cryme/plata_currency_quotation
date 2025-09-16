@@ -8,7 +8,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-var V *Config
+var Instance *Config
 
 type Config struct {
 	Env env.Environment `env:"ENV" env-required:"true"`
@@ -20,7 +20,7 @@ type Config struct {
 	DbPassword string `env:"DB_PASSWORD" env-required:"true"`
 	DbName     string `env:"DB_NAME" env-required:"true"`
 	DbPort     uint16 `env:"DB_PORT" env-required:"true"`
-	DbUseSsl   bool   `env:"DB_USE_SSL" env-required:"true"`
+	DbSslMode  string `env:"DB_SSL_MODE" env-required:"true"`
 
 	ServerIp               string        `env:"SERVER_IP" env-required:"true"`
 	ServerPort             uint16        `env:"SERVER_PORT" env-required:"true"`
@@ -52,7 +52,7 @@ func FromEnv() *Config {
 	switch cfg.Env {
 	case env.Dev, env.Preprod:
 		if cfg.SwaggerUser == "" || cfg.SwaggerPassword == "" {
-			log.Fatalf("Swagger Login and Swagger Password must be set in %s environment", cfg.Env)
+			log.Fatalf("SWAGGER_USER and SWAGGER_PASSWORD must be set in %s environment", cfg.Env)
 		}
 	}
 

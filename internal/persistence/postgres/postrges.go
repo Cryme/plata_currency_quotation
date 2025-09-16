@@ -24,16 +24,15 @@ func (d *Db) OnStart() error {
 }
 
 func New() *Db {
-	var useSsl string
-
-	if config.V.DbUseSsl {
-		useSsl = "enable"
-	} else {
-		useSsl = "disable"
-	}
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=UTC",
-		config.V.DbHost, config.V.DbUser, config.V.DbPassword, config.V.DbName, config.V.DbPort, useSsl)
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=UTC",
+		config.Instance.DbHost,
+		config.Instance.DbUser,
+		config.Instance.DbPassword,
+		config.Instance.DbName,
+		config.Instance.DbPort,
+		config.Instance.DbSslMode,
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
