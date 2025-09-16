@@ -14,14 +14,14 @@
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_NAME`
-- `DB_USE_SSL` `true`/`false`
+- `DB_SSL_MODE` [варианты](https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-PROTECTION) 
 - `SERVER_IP`
 - `SERVER_PORT`
-- `OUTGOING_REQUEST_TIMEOUT`
-- `INCOMING_REQUEST_TIMEOUT`
+- `OUTGOING_REQUEST_TIMEOUT` - например `60s` или `1m`
+- `INCOMING_REQUEST_TIMEOUT` - например `60s` или `1m`
 - `SWAGGER_USER` - необходимо только для `dev`/`preprod`
 - `SWAGGER_PASSWORD` - необходимо только для `dev`/`preprod`
-- `METRICS_PORT`
+- `METRICS_PORT` - порт, на котором будут метрики
 - `FRANKFURTER_API_URL` - `https://api.frankfurter.dev`
 
 ---
